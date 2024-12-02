@@ -1,0 +1,165 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace AgendaProSolutions
+{
+    public partial class FormCadastro : Form
+    {
+        // String de conexão com o banco de dados SQL Server
+        private string connectionString = "Server=localhost;Database=agendaprosolutions;Integrated Security=True";
+
+        public FormCadastro()
+        {
+            InitializeComponent();
+        }
+
+        // Método para abrir a conexão
+        private SqlConnection OpenConnection()
+        {
+            SqlConnection connection = new SqlConnection(connectionString);
+            try
+            {
+                connection.Open();
+                MessageBox.Show("Conexão bem-sucedida com o banco de dados!");
+                return connection;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao conectar com o banco de dados: " + ex.Message);
+                return null;
+            }
+        }
+
+        // Método para fechar a conexão
+        private void CloseConnection(SqlConnection connection)
+        {
+            try
+            {
+                connection.Close();
+                MessageBox.Show("Conexão fechada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao fechar a conexão: " + ex.Message);
+            }
+        }
+
+        // Exemplo de inserção de dados no banco
+        private void InserirDados(string nome, string email)
+        {
+            SqlConnection connection = OpenConnection();
+            if (connection != null)
+            {
+                string query = "INSERT INTO Contatos (Nome, Email) VALUES (@Nome, @Email)";
+                SqlCommand cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@Nome", nome);
+                cmd.Parameters.AddWithValue("@Email", email);
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Dados inseridos com sucesso!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao inserir dados: " + ex.Message);
+                }
+                finally
+                {
+                    CloseConnection(connection);
+                }
+            }
+        }
+
+        // Exemplo de consulta de dados do banco
+        private void LocalizarDados(int id)
+        {
+            SqlConnection connection = OpenConnection();
+            if (connection != null)
+            {
+                string query = "SELECT Nome, Email FROM Contatos WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                try
+                {
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        string nome = reader["Nome"].ToString();
+                        string email = reader["Email"].ToString();
+                        MessageBox.Show($"Nome: {nome}\nEmail: {email}");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Contato não encontrado!");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao consultar dados: " + ex.Message);
+                }
+                finally
+                {
+                    CloseConnection(connection);
+                }
+            }
+        }
+
+        // Exemplo de alteração de dados no banco
+        private void AlterarDados(int id, string novoNome, string novoEmail)
+        {
+            SqlConnection connection = OpenConnection();
+            if (connection != null)
+            {
+                string query = "UPDATE Contatos SET Nome = @Nome, Email = @Email WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@Nome", novoNome);
+                cmd.Parameters.AddWithValue("@Email", novoEmail);
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Dados alterados com sucesso!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao alterar dados: " + ex.Message);
+                }
+                finally
+                {
+                    CloseConnection(connection);
+                }
+            }
+        }
+
+        // Exemplo de exclusão de dados no banco
+        private void ExcluirDados(int id)
+        {
+            SqlConnection connection = OpenConnection();
+            if (connection != null)
+            {
+                string query = "DELETE FROM Contatos WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Dados excluídos com sucesso!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao excluir dados: " + ex.Message);
+                }
+                finally
+                {
+                    CloseConnection(connection);
+                }
+            }
+        }
+    }
+}
